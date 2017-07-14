@@ -6,6 +6,7 @@ import csv
 from lxml import etree
 
 api_url = 'https://www.boardgamegeek.com/xmlapi/boardgame/{}'
+batch_size = 100
 
 # Read games list
 with open('games.csv', 'r') as infile, open('detail.csv', 'w') as outfile:
@@ -16,17 +17,29 @@ with open('games.csv', 'r') as infile, open('detail.csv', 'w') as outfile:
     writer = csv.writer(outfile)
     writer.writerow(['title', 'categories', 'mechanics'])
 
+    batch = []
+
     for i, game in enumerate(reader):
         # Print status
         print('Scraping {} ({})'.format(game[1], i+1))
 
+        batch.append(game[0])
+
+        if len(batch) < batch_size:
+            continue
+
         # Get XML
-        page = requests.get(api_url.format(game[0])).text
+        page = requests.get(api_url.format(','.join(batch))).text
         doc = etree.fromstring(page)
 
-        # Get categories and mechanisms
-        categories = ','.join([category.text for category in doc.getchildren()[0].findall('boardgamecategory')])
-        mechanics = ','.join([mechanic.text for mechanic in doc.getchildren()[0].findall('boardgamemechanic')])
+        # Process each game data
+        for game_node in doc.getchildren():
+            # Get categories and mechanisms
+            name = game_node.findall('name[@primary]')[0].text
+            categories = ','.join([category.text for category in game_node.findall('boardgamecategory')])
+            mechanics = ','.join([mechanic.text for mechanic in game_node.findall('boardgamemechanic')])
 
-        # Write data to the csv file
-        writer.writerow([game[1], categories, mechanics])
+            # Write data to the csv file
+            writer.writerow([name, categories, mechanics])
+
+        batch = []
