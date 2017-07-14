@@ -3,3 +3,4 @@
 Python module requirements:
 - requests
 - lxml
+- cssselect
