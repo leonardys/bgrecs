@@ -1,3 +1,5 @@
+# Get list of games from https://boardgamegeek.com/browse/boardgame
+# Save the list to a csv file
 import requests
 import csv
 from lxml import html
@@ -6,15 +8,15 @@ base = 'https://boardgamegeek.com'
 url = '/browse/boardgame'
 last_page = False
 
-with open('games.csv', 'w') as csvfile:
-    writer = csv.writer(csvfile)
+with open('games.csv', 'w') as outfile:
+    writer = csv.writer(outfile)
     writer.writerow(['id', 'title'])
 
     while not last_page:
         # Print status
         print('Scraping {}'.format(base+url))
 
-        # Get and page content
+        # Get page content
         page = requests.get(base+url).text
         doc = html.fromstring(page)
 
