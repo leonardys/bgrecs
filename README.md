@@ -6,4 +6,4 @@ Python module requirements:
 - cssselect
 
 Dataset:
-- games.csv (list of games, scraped on 07/14/2017)
+- games.csv (Updated on 07/21/2017)
