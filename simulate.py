@@ -4,18 +4,16 @@ import networkx as nx
 G = nx.read_gml('boardgame.gml')
 
 # Rating
-#  2 = I really like it
 #  1 = I like it
 #  0 = No preference
 # -1 = I don't like it
-# -2 = I really don't like it
 nx.set_node_attributes(G, 'rating', 0)
 nx.set_node_attributes(G, 'rated', False)
 
-# Functions
+# Rate a game
 def rate(node, rating=0, rated=True):
-    alpha = 0.01
-    epsilon = 0.001
+    alpha = 1e-2
+    epsilon = 5e-3
 
     # Set node rating
     G.node[node]['rating'] = rating
@@ -33,8 +31,11 @@ def rate(node, rating=0, rated=True):
             neighbor_value = G.node[neighbor]['rating'] + change
             rate(neighbor, rating=neighbor_value, rated=False)
 
-def top_like(n=10):
-    return sorted([G.node[node] for node in G.nodes()], key=lambda x: x['rating'], reverse=True)[:n]
+def top_likes(n=10):
+    return sorted([G.node[node] for node in G.nodes() if not G.node[node]['rated']], key=lambda x: x['rating'], reverse=True)[:n]
 
-def top_dislike(n=10):
-    return sorted([G.node[node] for node in G.nodes()], key=lambda x: x['rating'])[:n]
+def top_dislikes(n=10):
+    return sorted([G.node[node] for node in G.nodes() if not G.node[node]['rated']], key=lambda x: x['rating'])[:n]
+
+def rated_games():
+    return sorted([G.node[node] for node in G.nodes() if G.node[node]['rated']], key=lambda x: x['rating'], reverse=True)
