@@ -18,15 +18,15 @@ with open('games.csv', 'r') as infile:
         traits = set(game['categories'].split(',') + game['mechanisms'].split(','))
         traits.discard('')
 
-        # Skip game that has no traits or has less than 500 voters
-        if len(traits) == 0 or num_voters < 500:
+        # Skip expansions and games that have no traits or have less than 500 voters
+        if len(traits) == 0 or num_voters < 500 or 'Expansion for Base-game' in traits:
             continue
 
         # Print status
         print('Processing {}'.format(title))
 
         # Add game into the graph
-        G.add_node(id, title=title, ntrait=len(traits))
+        G.add_node(id, {'label': title, 'ntrait': len(traits), 'rating': 0.0, 'rated': False})
 
         # Group similar games based on traits
         for trait in iter(traits):
@@ -46,4 +46,4 @@ for trait, games in iter(groups.items()):
             G.add_edge(source, target, weight=1)
 
 # Save the network
-nx.write_gml(G, 'boardgame.gml')
+nx.write_gexf(G, 'boardgame.gexf')
