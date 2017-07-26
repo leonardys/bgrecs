@@ -1,10 +1,7 @@
 import networkx as nx
 
 # Rate a game
-def rate(G, node, rating=0):
-    alpha = 1e-2
-    epsilon = 5e-3
-    max_iters = 1e6
+def rate(G, node, rating, alpha=1e-2, epsilon=5e-3, max_iters=1e6):
     num_iters = 0
 
     # Set node rating
@@ -13,7 +10,7 @@ def rate(G, node, rating=0):
 
     queue = set([(node, neighbor) for neighbor in G.neighbors(node)])
 
-    while len(queue):
+    while len(queue) and num_iters < max_iters:
         num_iters += 1
         source, target = queue.pop()
 
@@ -30,11 +27,6 @@ def rate(G, node, rating=0):
         if abs(change) > epsilon:
             G.node[target]['rating'] += change
             queue = queue.union({(target, neighbor) for neighbor in G.neighbors(target)})
-
-        # Force exit when max iterations reached
-        if num_iters > max_iters:
-            print('Max iterations reached')
-            break
 
 def top_likes(G, n=10):
     return sorted([G.node[node] for node in G.nodes() if not G.node[node]['rated']], key=lambda x: x['rating'], reverse=True)[:n]
